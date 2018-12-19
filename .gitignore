@@ -1,0 +1,3 @@
+*.csv
+autohome/__pycache__/
+autohome/spider/__pycache__/

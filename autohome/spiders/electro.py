@@ -21,6 +21,13 @@ class ElectroSpider(scrapy.Spider):
         self._curate = re.compile('用户评分：')
         self._cpic = re.compile('图片')
         self._ccfg = re.compile('配置')
+        self._ceng = re.compile('能源类型：')
+        self._cslow = re.compile('慢充时间：')
+        self._cfast = re.compile('快充时间：')
+        self._cbattary = re.compile('电池容量：')
+        self._cfperc = re.compile('快充百分比：')
+        self._cinsur = re.compile('整车质保：')
+        self._csize = re.compile('车身尺寸：')
 
     def parse(self, response):
         i = 0
@@ -76,7 +83,7 @@ class ElectroSpider(scrapy.Spider):
                         einfo["guide"] = ''.join(tt2.extract()).strip()
                         if einfo["guide"] is None or len(einfo["guide"]) == 0:
                             einfo["guide"] = t2[j].css("div span.guidance-price::text").extract_first()
-                    yield einfo
+                    yield scrapy.Request(einfo["spec"], meta = {'item': einfo}, callback = self.parse_spec)
                     sid += 1
                     j += 1
             i += 1
@@ -85,5 +92,25 @@ class ElectroSpider(scrapy.Spider):
         if nextpage is not None:
             yield scrapy.Request(self._base + nextpage.extract_first(), callback = self.parse)
 
-    def parse_detail(self, response):
-        pass
+    def parse_spec(self, response):
+        einfo = response.meta['item']
+        basic = response.css("div.spec-baseinfo ul.baseinfo-list li")
+        for t in basic:
+            key = t.css("::text").extract_first()
+            if self._ceng.search(key) is not None:
+                einfo["energy"] = t.css("span::text").extract_first()
+            elif self._cmiles.search(key) is not None:
+                einfo["endurance"] = t.css("span::text").extract_first()
+            elif self._cslow.search(key) is not None:
+                einfo["slow"] = t.css("span::text").extract_first()
+            elif self._cfast.search(key) is not None:
+                einfo["fast"] = t.css("span::text").extract_first()
+            elif self._cbattary.search(key) is not None:
+                einfo["battary"] = t.css("span::text").extract_first()
+            elif self._cfperc.search(key) is not None:
+                einfo["fastperc"] = t.css("span::text").extract_first()
+            elif self._cinsur.search(key) is not None:
+                einfo["insurance"] = t.css("span::text").extract_first()
+            elif self._csize.search(key) is not None:
+                einfo["size"] = t.css("span::text").extract_first()
+        yield einfo
