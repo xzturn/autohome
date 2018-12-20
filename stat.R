@@ -1,5 +1,6 @@
 library(ggplot2)
 library(ggcorrplot)
+library(plyr)
 library(showtext)
 
 showtext_auto()
@@ -9,7 +10,7 @@ t <- read.csv(args[1], na.strings="", stringsAsFactors=FALSE)
 
 process <- function(x) {
     # 唯一名称
-    uname <- paste(x$name, x$subname)
+    uname <- paste(x$name, x$subname, sep=" ")
     x$uname <- factor(uname, levels=uname)
 
     # 电池容量
@@ -79,17 +80,60 @@ plotdiverging <- function(x) {
     x <- x[order(x$endurance_z), ]
 
     theme_set(theme_bw())
-    g <- ggplot(x[1:100,], aes(x=name, y=endurance_z))
+    g <- ggplot(x, aes(x=name, y=endurance_z))
     g <- g + geom_bar(stat='identity', aes(fill=endurance_type), width=.5)
     g <- g + scale_fill_manual(name="Endurance(km)",
                     labels = c("Above Average", "Below Average"),
                     values = c("above"="#00ba38", "below"="#f8766d"))
     g <- g + labs(subtitle="Normalised endurance for electro cars", title= "Diverging Bars") 
     g <- g + coord_flip()
-    ggsave("tmp.png", width=16, height=9, dpi=640)
+    ggsave("deverging.electro.png", width=16, height=9, dpi=640)
+}
+
+plotscatter <- function(x) {
+    x$est <- ceiling(x$endurance / 100) * 100
+    mx <- ceiling(max(x$maxprice)+5)
+    my <- ceiling(max(x$endurance)+10)
+    theme_set(theme_bw())
+    g <- ggplot(x, aes(x=maxprice, y=endurance)) +
+        geom_point(aes(col=type, size=est)) +
+        geom_smooth(method="loess", se=F) +
+        xlim(c(0,mx)) +
+        ylim(c(0,my)) +
+        labs(subtitle="Price v.s. Endurance",
+             y="Endurance",
+             x="GuidePrice",
+             title="Scatter Plot",
+             caption = "Source: autohome diandongche")
+    ggsave("endurance.electro.png", width=16, height=9, dpi=640)
+}
+
+plotdensity <- function(x) {
+    theme_set(theme_bw())
+
+    g <- ggplot(x, aes(x=maxprice)) +
+        geom_density(color='darkblue', fill='lightblue') +
+        geom_vline(data=data.frame(mu=mean(x$maxprice)), aes(xintercept=mu), linetype='dashed')
+    ggsave("price.density.png", width=16, height=9, dpi=640)
+
+    g <- ggplot(x, aes(x=battary)) +
+        geom_density(color='darkblue', fill='lightblue') +
+        geom_vline(data=data.frame(mu=mean(x$battary)), aes(xintercept=mu), linetype='dashed')
+    ggsave("battary.density.png", width=16, height=9, dpi=640)
+
+    g <- ggplot(x, aes(x=endurance)) +
+        geom_density(color='darkblue', fill='lightblue') +
+        geom_vline(data=data.frame(mu=mean(x$endurance)), aes(xintercept=mu), linetype='dashed')
+    ggsave("endurance.density.png", width=16, height=9, dpi=640)
+
+    g <- ggplot(x, aes(x=maxpower)) +
+        geom_density(color='darkblue', fill='lightblue') +
+        geom_vline(data=data.frame(mu=mean(x$maxpower)), aes(xintercept=mu), linetype='dashed')
+    ggsave("horsepower.density.png", width=16, height=9, dpi=640)
 }
 
 v <- process(t)
-#st <- c("battary", "fast", "fastperc", "slow", "endurance", "maxpower", "minpower", "maxprice", "minprice")
-#plotcorr(v, st)
-plotdiverging(v)
+
+#plotcorr(v, c("battary", "fast", "fastperc", "slow", "endurance", "maxpower", "minpower", "maxprice", "minprice"))
+#plotscatter(v)
+plotdensity(v)
