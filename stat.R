@@ -91,49 +91,113 @@ plotdiverging <- function(x) {
 }
 
 plotscatter <- function(x) {
+    theme_set(theme_bw())
+
     x$est <- ceiling(x$endurance / 100) * 100
     mx <- ceiling(max(x$maxprice)+5)
     my <- ceiling(max(x$endurance)+10)
-    theme_set(theme_bw())
     g <- ggplot(x, aes(x=maxprice, y=endurance)) +
         geom_point(aes(col=type, size=est)) +
         geom_smooth(method="loess", se=F) +
         xlim(c(0,mx)) +
         ylim(c(0,my)) +
         labs(subtitle="Price v.s. Endurance",
-             y="Endurance",
+             y="Endurance(km)",
              x="GuidePrice",
              title="Scatter Plot",
              caption = "Source: autohome diandongche")
-    ggsave("endurance.electro.png", width=16, height=9, dpi=640)
+    ggsave("scatter.endurance.electro.png", width=16, height=9, dpi=640)
+
+    x$hwest <- ceiling(x$maxpower / 100) * 100
+    mx <- ceiling(max(x$maxprice)+5)
+    my <- ceiling(max(x$maxpower)+10)
+    g <- ggplot(x, aes(x=maxprice, y=maxpower)) +
+        geom_point(aes(col=type, size=hwest)) +
+        geom_smooth(method="loess", se=F) +
+        xlim(c(0,mx)) +
+        ylim(c(0,my)) +
+        labs(subtitle="Price v.s. Power",
+             y="Power(hp)",
+             x="GuidePrice",
+             title="Scatter Plot",
+             caption = "Source: autohome diandongche")
+    ggsave("scatter.power.electro.png", width=16, height=9, dpi=640)
+
+    x$btest <- ceiling(x$battary / 10) * 10
+    mx <- ceiling(max(x$maxprice)+5)
+    my <- ceiling(max(x$battary)+10)
+    g <- ggplot(x, aes(x=maxprice, y=battary)) +
+        geom_point(aes(col=type, size=btest)) +
+        geom_smooth(method="loess", se=F) +
+        xlim(c(0,mx)) +
+        ylim(c(0,my)) +
+        labs(subtitle="Price v.s. Battary",
+             y="Battary(kWh)",
+             x="GuidePrice",
+             title="Scatter Plot",
+             caption = "Source: autohome diandongche")
+    ggsave("scatter.battary.electro.png", width=16, height=9, dpi=640)
+
+    x$fest <- ceiling(x$fast * 10) / 10
+    mx <- ceiling(max(x$maxprice)+5)
+    my <- ceiling(max(x$fast)+1)
+    g <- ggplot(x, aes(x=maxprice, y=fast)) +
+        geom_point(aes(col=type, size=fest)) +
+        geom_smooth(method="loess", se=F) +
+        xlim(c(0,mx)) +
+        ylim(c(0,my)) +
+        labs(subtitle="Price v.s. FastCharge",
+             y="FastCharge(h)",
+             x="GuidePrice",
+             title="Scatter Plot",
+             caption = "Source: autohome diandongche")
+    ggsave("scatter.fast.electro.png", width=16, height=9, dpi=640)
+
+    x$sest <- ceiling(x$slow / 4) * 4
+    mx <- ceiling(max(x$maxprice)+5)
+    my <- ceiling(max(x$slow)+1)
+    g <- ggplot(x, aes(x=maxprice, y=slow)) +
+        geom_point(aes(col=type, size=sest)) +
+        geom_smooth(method="loess", se=F) +
+        xlim(c(0,mx)) +
+        ylim(c(0,my)) +
+        labs(subtitle="Price v.s. SlowCharge",
+             y="SlowCharge(h)",
+             x="GuidePrice",
+             title="Scatter Plot",
+             caption = "Source: autohome diandongche")
+    ggsave("scatter.slow.electro.png", width=16, height=9, dpi=640)
 }
 
 plotdensity <- function(x) {
     theme_set(theme_bw())
-
     g <- ggplot(x, aes(x=maxprice)) +
-        geom_density(color='darkblue', fill='lightblue') +
-        geom_vline(data=data.frame(mu=mean(x$maxprice)), aes(xintercept=mu), linetype='dashed')
-    ggsave("price.density.png", width=16, height=9, dpi=640)
+        geom_histogram(aes(y=..density..), color='lightblue', fill='white') +
+        geom_density(alpha=.2, color='darkblue', fill='cyan') +
+        geom_vline(data=data.frame(mu=mean(x$maxprice)), aes(xintercept=mu, color='red'), linetype='dashed')
+    ggsave("density.price.png", width=16, height=9, dpi=640)
 
     g <- ggplot(x, aes(x=battary)) +
-        geom_density(color='darkblue', fill='lightblue') +
-        geom_vline(data=data.frame(mu=mean(x$battary)), aes(xintercept=mu), linetype='dashed')
-    ggsave("battary.density.png", width=16, height=9, dpi=640)
+        geom_histogram(aes(y=..density..), color='lightblue', fill='white') +
+        geom_density(alpha=.2, color='darkblue', fill='cyan') +
+        geom_vline(data=data.frame(mb=mean(x$battary)), aes(xintercept=mb, color='red'), linetype='dashed')
+    ggsave("density.battary.png", width=16, height=9, dpi=640)
 
     g <- ggplot(x, aes(x=endurance)) +
-        geom_density(color='darkblue', fill='lightblue') +
-        geom_vline(data=data.frame(mu=mean(x$endurance)), aes(xintercept=mu), linetype='dashed')
-    ggsave("endurance.density.png", width=16, height=9, dpi=640)
+        geom_histogram(aes(y=..density..), color='lightblue', fill='white') +
+        geom_density(alpha=.2, color='darkblue', fill='cyan') +
+        geom_vline(data=data.frame(me=mean(x$endurance)), aes(xintercept=me, color='red'), linetype='dashed')
+    ggsave("density.endurance.png", width=16, height=9, dpi=640)
 
     g <- ggplot(x, aes(x=maxpower)) +
-        geom_density(color='darkblue', fill='lightblue') +
-        geom_vline(data=data.frame(mu=mean(x$maxpower)), aes(xintercept=mu), linetype='dashed')
-    ggsave("horsepower.density.png", width=16, height=9, dpi=640)
+        geom_histogram(aes(y=..density..), color='lightblue', fill='white') +
+        geom_density(alpha=.2, color='darkblue', fill='cyan') +
+        geom_vline(data=data.frame(mp=mean(x$maxpower)), aes(xintercept=mp, color='red'), linetype='dashed')
+    ggsave("density.power.png", width=16, height=9, dpi=640)
 }
 
 v <- process(t)
 
-#plotcorr(v, c("battary", "fast", "fastperc", "slow", "endurance", "maxpower", "minpower", "maxprice", "minprice"))
-#plotscatter(v)
+plotcorr(v, c("battary", "fast", "fastperc", "slow", "endurance", "maxpower", "minpower", "maxprice", "minprice"))
+plotscatter(v)
 plotdensity(v)
