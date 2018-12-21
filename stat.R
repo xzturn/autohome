@@ -1,5 +1,6 @@
 library(ggplot2)
 library(ggcorrplot)
+library(plotly)
 library(plyr)
 library(showtext)
 
@@ -167,6 +168,16 @@ plotscatter <- function(x) {
              title="Scatter Plot",
              caption = "Source: autohome diandongche")
     ggsave("scatter.slow.electro.png", width=16, height=9, dpi=640)
+}
+
+plot3d <- function(x) {
+    p <- plot_ly(x, x = ~maxprice, y = ~endurance, z = ~maxpower, color = ~type) %>%
+        add_markers() %>%
+        layout(scene = list(xaxis = list(title = 'GuidePrice'),
+                            yaxis = list(title = 'Endurance'),
+                            zaxis = list(title = 'HorsePower')))
+    chart_link = api_create(p, filename="scatter3d-basic")
+    chart_link
 }
 
 plotdensity <- function(x) {
